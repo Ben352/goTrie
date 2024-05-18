@@ -116,6 +116,10 @@ func (t *Trie) WordExsists(word string) bool {
 
 }
 
+func (t *Trie) Erase() {
+	t.Root.Children = make(map[rune]*Node)
+}
+
 func CreateNewTrie() *Trie {
 	emptyNode := &Node{Letter: 'h', Children: make(map[rune]*Node), IsLeaf: false}
 	return &Trie{Root: emptyNode}
