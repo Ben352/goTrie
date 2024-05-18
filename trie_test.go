@@ -18,4 +18,11 @@ func TestTrie(t *testing.T) {
 	assert.Equal(t, suggestions[0].Depth, 6, "check Depth")
 	assert.Equal(t, suggestions[0].Suggestion, "Hello World")
 	fmt.Println(suggestions)
+
+	trie.Erase()
+	suggestionsAfterErase := trie.GetWords("Hello", 10)
+	if len(suggestionsAfterErase) != 0 {
+		t.Fatalf("Did not reset")
+	}
+
 }
