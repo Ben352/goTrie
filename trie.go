@@ -126,7 +126,7 @@ func CreateNewTrie() *Trie {
 }
 
 func (t *Trie) LoadTrie(fileName string) {
-
+	t.Erase()
 	file, _ := os.ReadFile(fileName)
 
 	laodedResults := []string{}
