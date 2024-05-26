@@ -4,11 +4,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"strings"
 )
 
 type Trie struct {
-	Root  *Node
-	Words []string
+	Root         *Node
+	Words        []string
+	OrigianWords map[string]map[string]struct{}
 }
 
 type Node struct {
@@ -33,8 +35,9 @@ func CreateNewNode(letter rune) *Node {
 }
 
 func (t *Trie) InsertWord(word string) {
+	lowercaseWord := strings.ToLower(word)
 	currentRoot := t.Root
-	for _, letter := range word {
+	for _, letter := range lowercaseWord {
 
 		_, ok := currentRoot.Children[letter]
 		if ok {
@@ -47,13 +50,22 @@ func (t *Trie) InsertWord(word string) {
 	}
 	currentRoot.IsLeaf = true
 	t.AddWord(word)
+
+	_, ok := t.OrigianWords[lowercaseWord]
+	// If the key exists
+	if !ok {
+		t.OrigianWords[lowercaseWord] = make(map[string]struct{})
+		t.OrigianWords[lowercaseWord][word] = struct{}{}
+	}
+
 }
 
 func (t *Trie) GetWords(word string, depth int) []SearchResult {
 	options := []SearchResult{}
 	var currentWord []rune
 	currentRoot := t.Root
-	for _, letter := range word {
+	lowercaseWord := strings.ToLower(word)
+	for _, letter := range lowercaseWord {
 
 		_, ok := currentRoot.Children[letter]
 		if !ok {
@@ -90,8 +102,13 @@ func (t *Trie) GetWords(word string, depth int) []SearchResult {
 			}
 		}
 	}
-
-	return options
+	caseInsensetiveResults := []SearchResult{}
+	for _, element := range options {
+		for k, _ := range t.OrigianWords[element.Suggestion] {
+			caseInsensetiveResults = append(caseInsensetiveResults, SearchResult{Suggestion: k, Depth: element.Depth})
+		}
+	}
+	return caseInsensetiveResults
 
 	//  findalloptions
 
@@ -122,7 +139,7 @@ func (t *Trie) Erase() {
 
 func CreateNewTrie() *Trie {
 	emptyNode := &Node{Letter: 'h', Children: make(map[rune]*Node), IsLeaf: false}
-	return &Trie{Root: emptyNode}
+	return &Trie{Root: emptyNode, OrigianWords: make(map[string]map[string]struct{})}
 }
 
 func (t *Trie) LoadTrie(fileName string) {
